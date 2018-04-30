@@ -1,0 +1,66 @@
+
+#########################################################
+copy msididx.json and blob data from occ side to sot side
+#########################################################
+
+Scripts:
+========
+copy_data_from_occ.py
+
+input:  https://occweb.cfa.harvard.edu/occweb/web/fot_web/software/sandbox/SOT_area/msididx.json
+        msid data using maude tools
+        <house_keeping>/msid_id_list  
+        <house_keeping>/msid_list
+                ---- all msids in the list must be extractable with maude. check them with the
+                     supplemental scripts to make sure that they are ok
+
+output: <outdir>/msididx.json   --- contains msid description, limits and expected values
+        <outdir>/blob.json      --- contains msid most recent valid data value
+
+run checker: <house_keeping>/running
+                ---- while running a long blob.json extraction, this will be set to "1" so that
+                     following run of the script won't run while the process is running. 
+outdir:         /data/mta4/www/CSH_test2/
+
+Supplemental Script:
+====================
+check_msid_exist_list.py    ---  print out msids in the list which cannot be extracted with maude
+
+check_msid_exist.py         ---  a given msid, it will tell whether it can be extracted with maude
+
+Direcotry:
+==========
+bin_dir:        /data/mta/Script/SOH_TI/
+house_keeping:  /data/mta/Script/SOH_TI/house_keeping/
+outdir:         /data/mta4/www/CSH/
+
+Web Address:
+============
+https://cxc.cfa.harvard.edu/mta/CSH/soh.html
+https://cxc.cfa.harvard.edu/mta/CSH/soh_snap.html
+
+Environment Settings
+====================
+/proj/sot/ska/bin/python
+
+this script must be run under user "isobe"
+if the person running the script changes, check the function: get_u_p() in copy_data_from_occ.py
+
+cron job
+========
+r2d2-v as isobe:
+
+3,8,13,18,23,28,33,38,43,48,53,58 * * * *  cd /data/mta/Script/SOH_TI/; /data/mta/Script/SOH_TI/copy_data_from_occ.py > /data/mta/Script/SOH_TI/test_log.cron 2>&1
+
+
+***************
+Notes on htmls 
+***************
+<outdir> contains the html files, json data, and backbone.js related scripts.
+
+js/lib          --- contains library of backbone.js related javascripts files
+
+js/models       --- contains models to be used
+js/view         --- contains view (html page construction related) javascript
+js/collection   --- collections of javascripts
+
