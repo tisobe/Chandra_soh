@@ -6,7 +6,7 @@
 #                                                                                   #
 #           author: t. isobe (tisobe@cfa.harvard.edu)                               #
 #                                                                                   #
-#           last update: Apr 30, 2018                                               #
+#           last update: May 09, 2018                                               #
 #                                                                                   #
 #####################################################################################
 
@@ -349,20 +349,88 @@ def extract_blob_data(msid_list, mdict, start, stop):
 #
 #--- if it is the last entry, do without ','
 #
-            if m == mstp:
-                out = out + '"f": '     + '"1"}'
-            else:
-                out = out + '"f": '     + '"1"},'
+#            if m == mstp:
+#                out = out + '"f": '     + '"1"}'
+#            else:
+#                out = out + '"f": '     + '"1"},'
      
+            out  = out + '"f": '     + '"1"},'
             line = line  + out + "\n"
+#
+#---- special computed values
+#
+    [aoacfid, aoacfct] = get_aoacomputed(start, stop, ctime)
+             
+    line = line + aoacfid + '\n'
+    line = line + aoacfct + '\n'
 
     line = line + ']'
+
     out  = outdir + 'blob.json'
     fo   = open(out, 'w')
     fo.write(line)
     fo.close()
 
     return 'run'
+
+#-------------------------------------------------------------------------------
+#-- get_aoacomputed: adding computerd AOACFID and AOACFCT to the database     --
+#-------------------------------------------------------------------------------
+
+def get_aoacomputed(start, stop, ctime):
+    """
+    adding computerd AOACFID and AOACFCT to the database
+    input:  start   --- start time
+            stop    --- stop time
+            ctime   --- time to be display
+    output: aoacfid --- AOACFID output in blob format
+            aoacfct --- AOACFCT output in blob format
+    """
+
+    msid_short = ['AOACFID0', 'AOACFID1','AOACFID2','AOACFID3','AOACFID4','AOACFID5','AOACFID6','AOACFID7']
+    aoacfid    = create_aoaline(msid_short, start, stop, 'AOACFIDC', 99999, ctime, mlast=0)
+
+    msid_short = ['AOACFCT0', 'AOACFCT1','AOACFCT2','AOACFCT3','AOACFCT4','AOACFCT5','AOACFCT6','AOACFCT7']
+    aoacfct    = create_aoaline(msid_short, start, stop, 'AOACFCTC', 98989, ctime, mlast=1)
+
+
+    return [aoacfid, aoacfct]
+
+#-------------------------------------------------------------------------------
+#-- create_aoaline: create a combined blob data line                         ---
+#-------------------------------------------------------------------------------
+
+def create_aoaline(msid_short,start, stop, msid, index, ctime, mlast=0):
+    """
+    create a combined blob data line 
+    input:  msid_short  --- a list of msids to be sued
+            start       --- start time
+            stop        --- stop time
+            ctime       --- time to be display
+            msid        --- msid to be used
+            index       --- index of the msid
+            mlast       --- indicator of whether this is the last of the blob entry
+                            if so, it cannot have "," at the end
+    output: out         --- blob data line
+    """
+
+    mdata = maude.get_msids(msid_short, start, stop)
+    line = ''
+    for k in range(0, 8):
+        val = str((list(mdata['data'][k]['values']))[-1])
+        line = line + str(val)[0]
+
+    out = '{"msid":"' + msid + '",'
+    out = out + '"index":"' + str(index) + '",'
+    out = out + '"time":"'  + ctime + '",'
+    out = out + '"value":"'  + line  + '",'
+    if mlast == 1:
+        out = out + '"f": '     + '"1"}'
+    else:
+        out = out + '"f": '     + '"1"},'
+
+
+    return out
 
 #-------------------------------------------------------------------------------
 #-- copy_msididx_data: copy msididx.json from occ side                        --
@@ -380,9 +448,21 @@ def copy_msididx_data():
     os.system(cmd)
     cmd = 'wget --user='+usr + ' --password=' + pwd + '  ' + url
     os.system(cmd)
+#
+#--- special addtions
+#
+    line = '[{"name": "AOACFIDC", "idx": 99999, "description": "ACA Fiducial Object 0-7  (OBC)", "sc": [""]},'
+    line = line + '{"name": "AOACFCTC", "idx": 98989, "description": "ACA Image Func 0-7 (OBC)", "sc": [""]},{"name"'
 
-    cmd = 'cp msididx.json ' + outdir + 'msididx.json'
-    os.system(cmd)
+    f    = open('msididx.json', 'r')
+    data = f.read()
+
+    out = data.replace('[{"name"', line)
+
+    outfile = outdir + 'msididx.json'
+    fo      = open(outfile, 'w')
+    fo.write(out)
+    fo.close()
 
 
 #-------------------------------------------------------------------------------
@@ -428,3 +508,4 @@ def read_file_data(file):
 if __name__ == '__main__':
 
     copy_data_from_occs()
+
