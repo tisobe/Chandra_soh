@@ -1,7 +1,7 @@
 //
 //---   views/msidview.js:
 //---       t. isobe (tisobe@cfa.harvard.edu) based on D. Jones script
-//---       Last Update: Sep 14, 2017
+//---       Last Update: May 15, 2018
 //
 
 var app = app || {};
@@ -91,13 +91,15 @@ app.MSIDView = Backbone.View.extend({
                                         'description':  this.descr}));
 
 
+
+            //--- computing load bus power and display it ------
+
             if(this.model.get('name') == 'ELBV'){
 
-            //--- computing load bus power and display it
-
-                elbPower = computerLBusPower();
+                elbPower = computeLBusPower();
                 $("td.comp").replaceWith("<td class='comp'>" + elbPower + "</td>");
             }
+
         }
 
         //--- cell background color setting
@@ -125,7 +127,7 @@ app.MSIDView = Backbone.View.extend({
 
 //-----------------------------
 
-var computerLBusPower = function(){
+var computeLBusPower = function(){
     
     //--- compute EPS Load bus power
 

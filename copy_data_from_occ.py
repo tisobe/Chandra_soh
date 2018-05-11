@@ -6,7 +6,7 @@
 #                                                                                   #
 #           author: t. isobe (tisobe@cfa.harvard.edu)                               #
 #                                                                                   #
-#           last update: May 09, 2018                                               #
+#           last update: May 11, 2018                                               #
 #                                                                                   #
 #####################################################################################
 
@@ -215,11 +215,15 @@ def check_blob_state():
         bfile = outdir + 'blob.json'
         data  = read_file_data(bfile)
     
+        chk   = 0
         for ent in data:
-            mc = re.search('AOPCADMD', ent)
-            if mc is not None:
-                mc2 = re.search('"value":"NaN"', ent)
-                if mc2 is not None:
+            mc1 = re.search('AOPCADMD', ent)
+            mc2 = re.search('CIUB',     ent)
+            mc3 = re.search('EB1K1',    ent)
+            if (mc1 is not None) or (mc2 is not None) or (mc3 is not None):
+                mcv  = re.search('"value":"NaN"', ent)
+                chk += 1
+                if mcv is not None:
                     run = 1
                     break
                 else:
@@ -232,7 +236,8 @@ def check_blob_state():
 
                     else:
                         run = 0
-
+                        if chk < 2:
+                            continue
                     break
             else:
                 run = 1

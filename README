@@ -28,6 +28,43 @@ check_msid_exist_list.py    ---  print out msids in the list which cannot be ext
 
 check_msid_exist.py         ---  a given msid, it will tell whether it can be extracted with maude
 
+
+Data:
+=====
+blob.json:
+example: {"msid":"AOPCADMD","index":"2416","time":"2018131120936.285","value":"NPNT","f": "1"}
+        msid    --- msid of this data
+        index   --- index of this msid corresponding to that of msididx.json
+        time    --- time: 2018:131:12:09:36.285
+        value   --- current value
+        f       --- this is a dummy input for this app
+
+    blob.json is constructed locally by copy_data_from_occ.py using madue function
+
+msididx.json:
+example: ,{"name": "AOPCADMD", "idx": 2416, "description": "PCAD MOD E", "sc": ["STBY","NPNT","NMAN","NSUN","PWRF","RMAN","NULL"]}
+        name    --- msid
+        idx     --- index of this msid
+        description --- description of this msid
+        sc          --- possible values
+        limit/switch/set  --- if switch value takes a cartain value, set is used for expected value. 
+        "lim": [{"switch":{"AOPCADMD":"NMAN"},
+                  "set":{"wl":-0.03490658,"cl":-0.026179935,"ch":0.026179935,"wh":0.03490658}},
+                {"switch":{"AOPCADMD":"NPNT"},"
+                 "set":{"wl":-0.0000977384,"cl":-0.0000488692,"ch":0.0000488692,"wh":0.0000977384}},
+                    ...
+                where wl --- lower warning
+                      cl --- lower caution
+                      ch --- upper caution
+                      wh --- upper warning
+
+    msididx.json is directly copied from:
+
+    https://occweb.cfa.harvard.edu/occweb/web/fot_web/software/sandbox/SOT_area/msididx.json
+
+    this may change in future.
+
+
 Direcotry:
 ==========
 bin_dir:        /data/mta/Script/SOH_TI/
@@ -43,8 +80,9 @@ Environment Settings
 ====================
 /proj/sot/ska/bin/python
 
-this script must be run under user "isobe"
+this script must be run under user "isobe" to access occ data (both to copy msididx.json and access to maude tool)
 if the person running the script changes, check the function: get_u_p() in copy_data_from_occ.py
+
 
 cron job
 ========
@@ -61,6 +99,11 @@ Notes on htmls
 js/lib          --- contains library of backbone.js related javascripts files
 
 js/models       --- contains models to be used
+                    mid.js      --- msid model
+                    blob.js     --- blob model
+                    msidinfo.js --- msididx mode
+
 js/view         --- contains view (html page construction related) javascript
+                    msidview.js --- this craete view of msid. it can contain some computation related to the msid.
 js/collection   --- collections of javascripts
 
